@@ -1,0 +1,96 @@
+<psn:Document xmlns:Shrd="SharedTypes" xmlns:psn="PsNMasterData" xmlns:Hdr="HeaderDefinition"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <PsNOptionContract>
+        <Hdr:Header>
+            <SndrToRcvrInf>
+                <RcvrBIC>CRESSGSGECO</RcvrBIC>
+                <SndrBIC>CSPBSGSGPSN</SndrBIC>
+            </SndrToRcvrInf>
+            <FlInf>
+                <DWHMsgId>DWHMSGIDSGTDOPT20200221005317133</DWHMsgId>
+                <LocationIso2Cd>SG</LocationIso2Cd>
+                <CrtnDtTm>2020-02-21T01:53:17.827223000</CrtnDtTm>
+                <RprtngDt>2020-02-20</RprtngDt>
+                <Type>Transactional Data - Options Contract</Type>
+                <TypeCd>TDOPT</TypeCd>
+                <Vrsn>1.0.0</Vrsn>
+                <ClntFmt>XML</ClntFmt>
+                <MsqSeqNo>1</MsqSeqNo>
+            </FlInf>
+        </Hdr:Header>
+        <Data>
+            <ClntOptCtrctData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>71788</ClntId>
+                    <ExtClntId>71788</ExtClntId>
+                </ClntKey>
+                <OptnCtrctInf>
+                    <CtrctId>DXTRA1924600035</CtrctId>
+                    <DealDt>2019-09-03</DealDt>
+                    <ExpiryDt>2020-09-01</ExpiryDt>
+                    <BaseCcyCsCd>0010</BaseCcyCsCd>
+                    <BaseCcyIsoCd>CHF</BaseCcyIsoCd>
+                    <SttlmDt>2020-09-03</SttlmDt>
+                    <BuySttlmDt>2020-09-03</BuySttlmDt>
+                    <SellSttlmDt>2020-09-03</SellSttlmDt>
+                    <SttlmTpInd>5</SttlmTpInd>
+                    <BuySellInd>Buy</BuySellInd>
+                    <OptnTpCd>4</OptnTpCd>
+                    <ExticOptnTpCd>TargetRedemptionForward</ExticOptnTpCd>
+                    <NtnlLeadCcyAmt>5200000.00000000</NtnlLeadCcyAmt>
+                    <NtnlLeadCcyIsoCd>EUR</NtnlLeadCcyIsoCd>
+                    <NtnlLeadCcyIsoDesc>Euro</NtnlLeadCcyIsoDesc>
+                    <StrikePrcRate>120.55000000</StrikePrcRate>
+                    <NtnlCounterCcyAmt>626860000.00000000</NtnlCounterCcyAmt>
+                    <NtnlCounterCcyIsoCd>JPY</NtnlCounterCcyIsoCd>
+                    <NtnlCounterCcyIsoDesc>Yen</NtnlCounterCcyIsoDesc>
+                    <PremiumAmt>0.00000000</PremiumAmt>
+                    <PremiumCcyIsoCd>USD</PremiumCcyIsoCd>
+                    <PremiumCcyIsoDesc>US dollars</PremiumCcyIsoDesc>
+                    <PosDt>2020-02-20</PosDt>
+                    <RevaltnDt>2020-09-03</RevaltnDt>
+                    <PrtflId>71788-1</PrtflId>
+                    <MtmValOrigCcyIsoCd>EUR</MtmValOrigCcyIsoCd>
+                    <MtmValOrigCcyAmt>5342.98183600</MtmValOrigCcyAmt>
+                    <MtmValRptCcyIsoCd>USD</MtmValRptCcyIsoCd>
+                    <MtmValRptCcyAmt>5786.44932842</MtmValRptCcyAmt>
+                    <MtmValDt>2020-02-18</MtmValDt>
+                </OptnCtrctInf>
+                <OptnCtrctInf>
+                    <CtrctId>DXTRA1928900047</CtrctId>
+                    <DealDt>2019-10-16</DealDt>
+                    <ExpiryDt>2020-10-14</ExpiryDt>
+                    <BaseCcyCsCd>0010</BaseCcyCsCd>
+                    <BaseCcyIsoCd>CHF</BaseCcyIsoCd>
+                    <SttlmDt>2020-10-16</SttlmDt>
+                    <BuySttlmDt>2020-10-16</BuySttlmDt>
+                    <SellSttlmDt>2020-10-16</SellSttlmDt>
+                    <SttlmTpInd>5</SttlmTpInd>
+                    <BuySellInd>Buy</BuySellInd>
+                    <OptnTpCd>4</OptnTpCd>
+                    <ExticOptnTpCd>PivotTargetRedemptionForward</ExticOptnTpCd>
+                    <NtnlLeadCcyAmt>3120000.00000000</NtnlLeadCcyAmt>
+                    <NtnlLeadCcyIsoCd>NZD</NtnlLeadCcyIsoCd>
+                    <NtnlLeadCcyIsoDesc>New Zealand dollars</NtnlLeadCcyIsoDesc>
+                    <StrikePrcRate>0.66180000</StrikePrcRate>
+                    <NtnlCounterCcyAmt>2064816.00000000</NtnlCounterCcyAmt>
+                    <NtnlCounterCcyIsoCd>USD</NtnlCounterCcyIsoCd>
+                    <NtnlCounterCcyIsoDesc>US dollars</NtnlCounterCcyIsoDesc>
+                    <PremiumAmt>0.00000000</PremiumAmt>
+                    <PremiumCcyIsoCd>NZD</PremiumCcyIsoCd>
+                    <PremiumCcyIsoDesc>New Zealand dollars</PremiumCcyIsoDesc>
+                    <PosDt>2020-02-20</PosDt>
+                    <RevaltnDt>2020-10-16</RevaltnDt>
+                    <PrtflId>71788-1</PrtflId>
+                    <MtmValOrigCcyIsoCd>NZD</MtmValOrigCcyIsoCd>
+                    <MtmValOrigCcyAmt>-2104.31397200</MtmValOrigCcyAmt>
+                    <MtmValRptCcyIsoCd>USD</MtmValRptCcyIsoCd>
+                    <MtmValRptCcyAmt>-1349.28611859</MtmValRptCcyAmt>
+                    <MtmValDt>2020-02-18</MtmValDt>
+                </OptnCtrctInf>
+            </ClntOptCtrctData>
+        </Data>
+    </PsNOptionContract>
+</psn:Document>

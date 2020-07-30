@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<psn:Document xmlns:Shrd="SharedTypes" xmlns:psn="PsNMasterData" xmlns:Hdr="HeaderDefinition"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <PsNSafekeepingAccountInformation>
+        <Hdr:Header>
+            <SndrToRcvrInf>
+                <RcvrBIC>CRESSGSGECO</RcvrBIC>
+                <SndrBIC>CSPBSGSGPSN</SndrBIC>
+            </SndrToRcvrInf>
+            <FlInf>
+                <DWHMsgId>DWHMSGIDSGSDSA2020022207394717</DWHMsgId>
+                <LocationIso2Cd>SG</LocationIso2Cd>
+                <CrtnDtTm>2020-02-22T08:39:47.485874000</CrtnDtTm>
+                <RprtngDt>2020-02-21</RprtngDt>
+                <Type>Static Data - Safekeeping Account Information</Type>
+                <TypeCd>SDSA</TypeCd>
+                <Vrsn>1.0.0</Vrsn>
+                <ClntFmt>XML</ClntFmt>
+                <MsqSeqNo>1</MsqSeqNo>
+            </FlInf>
+        </Hdr:Header>
+        <Data>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>129638</ClntId>
+                    <ExtClntId>129638</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>129638-1</AcctId>
+                    <ExtAcctId>129638-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2014-10-28</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+                <SfkInfo>
+                    <AcctId>129638-80</AcctId>
+                    <ExtAcctId>129638-80</ExtAcctId>
+                    <InvstmtCcyIsoCd>EUR</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>Euro</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2014-12-02</AcctOpngDt>
+                    <AcctClsgSts>yes</AcctClsgSts>
+                    <AcctClsgDt>2018-05-16</AcctClsgDt>
+                    <AcctSts>no</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>132676</ClntId>
+                    <ExtClntId>132676</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>132676-1</AcctId>
+                    <ExtAcctId>132676-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2016-06-28</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>31288</ClntId>
+                    <ExtClntId>31288</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>31288-1</AcctId>
+                    <ExtAcctId>31288-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2004-07-19</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>40737</ClntId>
+                    <ExtClntId>40737</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>40737-1</AcctId>
+                    <ExtAcctId>40737-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2016-09-09</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>40825</ClntId>
+                    <ExtClntId>40825</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>40825-1</AcctId>
+                    <ExtAcctId>40825-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2018-07-23</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>41130</ClntId>
+                    <ExtClntId>41130</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>41130-1</AcctId>
+                    <ExtAcctId>41130-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2019-01-31</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>71323</ClntId>
+                    <ExtClntId>71323</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>71323-1</AcctId>
+                    <ExtAcctId>71323-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2018-11-01</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+                <SfkInfo>
+                    <AcctId>71323-59</AcctId>
+                    <ExtAcctId>71323-59</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2018-11-01</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>71788</ClntId>
+                    <ExtClntId>71788</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>71788-1</AcctId>
+                    <ExtAcctId>71788-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2019-04-15</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+            <ClntSfkData>
+                <ClntKey>
+                    <IntRptUnit>0973</IntRptUnit>
+                    <IntRptUnitDesc>CS Private Banking Singapore Branch</IntRptUnitDesc>
+                    <ClntId>84959</ClntId>
+                    <ExtClntId>84959</ExtClntId>
+                </ClntKey>
+                <SfkInfo>
+                    <AcctId>84959-1</AcctId>
+                    <ExtAcctId>84959-1</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2016-06-30</AcctOpngDt>
+                    <AcctClsgSts>no</AcctClsgSts>
+                    <AcctSts>yes</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+                <SfkInfo>
+                    <AcctId>84959-2</AcctId>
+                    <ExtAcctId>84959-2</ExtAcctId>
+                    <InvstmtCcyIsoCd>USD</InvstmtCcyIsoCd>
+                    <InvstmtCcyIsoDesc>US dollars</InvstmtCcyIsoDesc>
+                    <AcctTpCd>100</AcctTpCd>
+                    <AcctTpDesc>Safekeeping account</AcctTpDesc>
+                    <AcctOpngDt>2016-12-02</AcctOpngDt>
+                    <AcctClsgSts>yes</AcctClsgSts>
+                    <AcctClsgDt>2017-04-18</AcctClsgDt>
+                    <AcctSts>no</AcctSts>
+                    <AcctPldgdInd>no</AcctPldgdInd>
+                    <AcctPrtlyPldgdInd>no</AcctPrtlyPldgdInd>
+                    <AcctLmtPldgdInd>no</AcctLmtPldgdInd>
+                </SfkInfo>
+            </ClntSfkData>
+        </Data>
+    </PsNSafekeepingAccountInformation>
+</psn:Document>

@@ -1,19 +1,34 @@
 package fsio
 
 import (
-	"fmt"
-	"github.com/spf13/afero"
+	"path"
+
 	"github.com/influx6/npkg/nerror"
+	"github.com/spf13/afero"
+
+	"github.com/JSchillinger/gopoc"
 )
+
+var _ gopoc.DataFileSystem = (*LocalFS)(nil)
 
 type LocalFS struct {
 	fs afero.Fs
 }
 
+func (l *LocalFS) OpenFile(eamNamespace string, datafeed string, targetPath string) (afero.File, error) {
+	l.initFS()
+	var eamTargetFilePath = path.Join(datafeed, eamNamespace, targetPath)
+	var targetFile, fileErr = l.fs.Open(eamTargetFilePath)
+	if fileErr != nil {
+		return nil, nerror.WrapOnly(fileErr)
+	}
+	return targetFile, nil
+}
+
 // OpenDir returns giving directory which has EAM datafeed files stored.
 func (l *LocalFS) OpenDir(eamNamespace string, datafeed string) (afero.File, error) {
 	l.initFS()
-	var eamDirectory = fmt.Sprintf("%s/%s", datafeed, eamNamespace)
+	var eamDirectory = path.Join(datafeed, eamNamespace)
 	var directoryFile, dirErr = l.fs.Open(eamDirectory)
 	if dirErr != nil {
 		return nil, nerror.WrapOnly(dirErr)
