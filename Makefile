@@ -1,8 +1,8 @@
 setup:
-	mkdir ~/go
+	mkdir -p ~/go
 	wget https://golang.org/dl/go1.14.6.linux-amd64.tar.gz -O ~/go/go1.14.6.linux-amd64.tar.gz
-	cd ~/go && mkdir 1.14.6 && tar -xvf go1.14.6.linux-amd64.tar.gz -C 1.14.6
-	export PATH="$HOME/go/1.14.6/bin:$PATH"
+	cd ~/go && mkdir -p 1.14.6 && tar -xvf go1.14.6.linux-amd64.tar.gz -C 1.14.6
+	export PATH="${HOME}/go/1.14.6/bin:${PATH}"
 	cd -
 
 test:
