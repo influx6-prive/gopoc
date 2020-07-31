@@ -44,7 +44,7 @@ make test
 make creditsuisse_cli
 ```
 
-See should be presented with a dump of the extracted data like below:
+You should be presented with a dump of the extracted data like below represented as Go structs:
 
 ```bash
 Requesting dir for `creditSuisse` -> `Credit Suisse`
