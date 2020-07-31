@@ -40,7 +40,7 @@ func (ic *ImportCashTransactionParser) CanHandle(parser gopoc.FeedParser) bool {
 	return false
 }
 
-func (ic *ImportCashTransactionParser) Parse(parser gopoc.FeedParser, results gopoc.ParserResultHandler) error {
+func (ic *ImportCashTransactionParser) Parse(parser gopoc.FeedParser, results gopoc.Collector) error {
 	var header = parser.Header()
 	switch header.Type() {
 	case datatypes.XMlDataFeed:

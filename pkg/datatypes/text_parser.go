@@ -52,7 +52,7 @@ func (t TextParser) ByRow() gopoc.FeedIterator {
 	panic("implement me")
 }
 
-func (t TextParser) HasTag(tag string) bool {
+func (t TextParser) HasTag(tag string) (bool, error) {
 	panic("implement me")
 }
 

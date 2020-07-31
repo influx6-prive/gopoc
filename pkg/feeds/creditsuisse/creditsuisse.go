@@ -16,7 +16,7 @@ type DataFeed struct {
 	FeedProcessors []gopoc.ParseProcessor
 }
 
-func (cs *DataFeed) Process(eamNamespace string, eachResult gopoc.ParserResultHandler) error {
+func (cs *DataFeed) Process(eamNamespace string, collector gopoc.Collector) error {
 	var directory, err = cs.FileSystem.OpenDir(eamNamespace, DataFeedName)
 	if err != nil {
 		return nerror.WrapOnly(err)
@@ -43,11 +43,16 @@ func (cs *DataFeed) Process(eamNamespace string, eachResult gopoc.ParserResultHa
 		}
 
 		for _, proc := range cs.FeedProcessors {
-			if !proc.CanHandle(targetFileParser) {
+			var canHandle, handleErr = proc.CanHandle(targetFileParser)
+			if handleErr != nil {
+				return nerror.WrapOnly(handleErr)
+			}
+
+			if !canHandle {
 				continue
 			}
 
-			if procErr := proc.Handle(targetFileParser, eachResult); procErr != nil {
+			if procErr := proc.Handle(targetFileParser, collector); procErr != nil {
 				return nerror.WrapOnly(procErr)
 			}
 		}

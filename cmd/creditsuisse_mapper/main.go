@@ -1,12 +1,12 @@
-package creditsuisse_test
+package main
 
 import (
 	"fmt"
+	"log"
 	"path"
-	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/require"
 
 	"github.com/JSchillinger/gopoc"
 	"github.com/JSchillinger/gopoc/pkg/datatypes"
@@ -14,7 +14,7 @@ import (
 	"github.com/JSchillinger/gopoc/pkg/feeds/creditsuisse/parsers"
 )
 
-var creditSuisseData = "../../../data/CreditSuisse"
+var creditSuisseData = "../../data/CreditSuisse"
 var creditSuisseFS = afero.NewOsFs()
 
 type LocalFS struct{}
@@ -29,14 +29,19 @@ func (l LocalFS) OpenFile(eamNamespace string, dataFeed string, fileName string)
 	return creditSuisseFS.Open(path.Join(creditSuisseData, fileName))
 }
 
+type Fault struct {
+	Header gopoc.FeedHeader
+	Err    error
+}
+
 type Collector struct {
 	Accounts []parsers.SafeKeepingAccountInformation
 	Options  []parsers.OptionContract
-	Err      []error
+	Errs     []Fault
 }
 
 func (c *Collector) CollectErr(header gopoc.FeedHeader, err error) {
-	c.Err = append(c.Err, err)
+	c.Errs = append(c.Errs, Fault{Header: header, Err: err})
 }
 
 func (c *Collector) Collect(header gopoc.FeedHeader, val interface{}) error {
@@ -51,7 +56,7 @@ func (c *Collector) Collect(header gopoc.FeedHeader, val interface{}) error {
 	return nil
 }
 
-func TestCreditSuisseSDSAParsing(t *testing.T) {
+func main() {
 	var feedControl creditsuisse.DataFeed
 	feedControl.FileSystem = &LocalFS{}
 	feedControl.FeedParser = &datatypes.BaseFileParser{}
@@ -61,14 +66,20 @@ func TestCreditSuisseSDSAParsing(t *testing.T) {
 	}
 
 	var collector Collector
-	require.NoError(t, feedControl.Process("credo", &collector))
-	require.Len(t, collector.Err, 0)
-	require.Len(t, collector.Accounts, 1)
-	require.Len(t, collector.Options, 1)
+	if err := feedControl.Process("creditSuisse", &collector); err != nil {
+		log.Fatalf("Failed to parse: %#q\n", err)
+		return
+	}
 
-	require.Len(t, collector.Accounts[0].SafeKeepingInfo, 9)
-	require.Equal(t, collector.Accounts[0].Account.Info.ClientFormat, "XML")
+	if len(collector.Errs) != 0 {
+		for _, fault := range collector.Errs {
+			log.Printf("Failed parsing of %#q with error: %#s\n", fault.Header, fault.Err)
+		}
+	}
 
-	require.Len(t, collector.Options[0].Contracts, 1)
-	require.Equal(t, collector.Options[0].Contracts[0].IntRptUnit, "0973")
+	log.Printf("---------Credit Suise SafeKeeping Accounts----------\n")
+	spew.Dump(collector.Accounts)
+
+	log.Printf("---------Credit Suise Option Contracts--------------\n")
+	spew.Dump(collector.Options)
 }

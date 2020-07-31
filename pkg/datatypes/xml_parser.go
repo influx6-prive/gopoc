@@ -1,6 +1,7 @@
 package datatypes
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -22,6 +23,10 @@ var _ gopoc.FeedParser = (*XMLParser)(nil)
 
 type XMLHeader struct {
 	FileInfo os.FileInfo
+}
+
+func (xe XMLHeader) String() string {
+	return fmt.Sprintf(`Type: %s,File: %s`, XMlDataFeed, xe.FileInfo.Name())
 }
 
 func (xe XMLHeader) Type() string {
@@ -65,7 +70,7 @@ func (xm *XMLParser) parseSource() error {
 	})
 	xm.err = err
 	if err != nil {
-		return nerror.Wrap(err, "Failed to parse data source")
+		return nerror.Wrap(err, "CollectErr to parse data source")
 	}
 	return nil
 }
@@ -99,13 +104,18 @@ func (xm *XMLParser) ByRow() gopoc.FeedIterator {
 	return &element
 }
 
-func (xm *XMLParser) HasTag(selector string) bool {
+func (xm *XMLParser) HasTag(xselector string) (bool, error) {
 	_ = xm.parseSource()
 	if xm.err != nil {
-		return false
+		return false, xm.err
 	}
-	var node = xm.xmlDocument.SelectElement(selector)
-	return node != nil
+	var xPath, xPathErr = etree.CompilePath(xselector)
+	if xPathErr != nil {
+		return false, xPathErr
+	}
+
+	var node = xm.xmlDocument.FindElementPath(xPath)
+	return node != nil, nil
 }
 
 func (xm *XMLParser) ByTag(selector string) gopoc.FeedIterator {
@@ -119,7 +129,13 @@ func (xm *XMLParser) ByTag(selector string) gopoc.FeedIterator {
 		return &element
 	}
 
-	element.nodes = xm.xmlDocument.SelectElements(selector)
+	var xPath, xPathErr = etree.CompilePath(selector)
+	if xPathErr != nil {
+		element.err = nerror.WrapOnly(xm.err)
+		return &element
+	}
+
+	element.nodes = xm.xmlDocument.FindElementsPath(xPath)
 	element.totalNodes = len(element.nodes)
 	return &element
 }
@@ -140,7 +156,10 @@ func (xe *XMLElementIterator) HasNext() bool {
 	if xe.err != nil {
 		return false
 	}
-	return xe.index < xe.totalNodes
+	if len(xe.nodes) == 0 {
+		return false
+	}
+	return xe.index < xe.totalNodes-1
 }
 
 func (xe *XMLElementIterator) Next() interface{} {

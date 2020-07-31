@@ -13,13 +13,17 @@ import (
 	"github.com/JSchillinger/gopoc/pkg/datatypes"
 )
 
+var (
+	_ gopoc.ParseProcessor = (*StaticDataSafeKeepingAccountInformationXMLParser)(nil)
+	_ gopoc.ParseProcessor = (*PsnOptionContractXMLParser)(nil)
+)
+
 const (
-	CrtnDtTMTimeFormat  = time.RFC3339Nano
-	ReportingTimeFormat = "2020-02-01"
+	CrtnDtTMTimeFormat  = time.RFC3339
+	ReportingTimeFormat = "2006-01-02"
 )
 
 type SafeKeepingAccountInfo struct {
-	Location                  string
 	AccountId                 string
 	ExtAccountId              string
 	InvestmentCurrencyISOCd   string
@@ -34,7 +38,7 @@ type SafeKeepingAccountInfo struct {
 	AccountOpeningDate        time.Time
 }
 
-type ClientKeyData struct {
+type SafeKeepingClientInfo struct {
 	IntRptUnit          string
 	IntRptUnitDesc      string
 	ClientId            string
@@ -50,7 +54,7 @@ type SenderReceiverInfo struct {
 type FLInfo struct {
 	DWHMsgId              string
 	LocationISO           string
-	CrtnDtTmDate          time.Time
+	CrtnDtTmDate          string
 	ReportingDate         time.Time
 	Type                  string
 	TypeCD                string
@@ -64,12 +68,12 @@ type AccountHeader struct {
 	Info   FLInfo
 }
 
-type PSNStaticDataSafeKeepingAccountInformation struct {
-	Account       AccountHeader
-	ClientKeyData []ClientKeyData
+type SafeKeepingAccountInformation struct {
+	Account         AccountHeader
+	SafeKeepingInfo []SafeKeepingClientInfo
 }
 
-type PSNOptionContractCtlInfo struct {
+type OptionContractCtlInfo struct {
 	CtrctId                    string
 	DealDate                   time.Time
 	ExpiryDate                 time.Time
@@ -104,20 +108,33 @@ type PSNOptionContractCtlInfo struct {
 
 type OptionContract struct {
 	Account   AccountHeader
-	Contracts []PSNOptionContractCtlInfo
+	Contracts []OptionClientKeyData
 }
 
-type StaticDataSafeKeepingAccountInformationParser struct{}
+type OptionClientKeyData struct {
+	IntRptUnit     string
+	IntRptUnitDesc string
+	ClientId       string
+	ExtClientId    string
+	Contracts      []OptionContractCtlInfo
+}
 
-func (ic *StaticDataSafeKeepingAccountInformationParser) CanHandle(parser gopoc.FeedParser) bool {
+type StaticDataSafeKeepingAccountInformationXMLParser struct{}
+
+func (ic *StaticDataSafeKeepingAccountInformationXMLParser) CanHandle(parser gopoc.FeedParser) (bool, error) {
 	var header = parser.Header()
-	if header.Type() == datatypes.XMlDataFeed && parser.HasTag("PsNSafekeepingAccountInformation") {
-		return true
+	var hasPSNTag, err = parser.HasTag("//psn:Document/PsNSafekeepingAccountInformation")
+	if err != nil {
+		return false, nerror.WrapOnly(err)
 	}
-	return false
+
+	if header.Type() == datatypes.XMlDataFeed && hasPSNTag {
+		return true, nil
+	}
+	return false, nil
 }
 
-func (ic *StaticDataSafeKeepingAccountInformationParser) Parse(parser gopoc.FeedParser, handler gopoc.ParserResultHandler) error {
+func (ic *StaticDataSafeKeepingAccountInformationXMLParser) Handle(parser gopoc.FeedParser, handler gopoc.Collector) error {
 	var header = parser.Header()
 	if header.Type() != datatypes.XMlDataFeed {
 		return nerror.New("must be an xml feed")
@@ -128,7 +145,7 @@ func (ic *StaticDataSafeKeepingAccountInformationParser) Parse(parser gopoc.Feed
 		return nerror.New("expecting datatypes.XMLParser type")
 	}
 
-	var psnAccountInfo = xmlParser.ByTag("PsNSafekeepingAccountInformation").(*datatypes.XMLElementIterator)
+	var psnAccountInfo = xmlParser.ByTag("//psn:Document/PsNSafekeepingAccountInformation").(*datatypes.XMLElementIterator)
 	if psnErr := psnAccountInfo.Err(); psnErr != nil {
 		return nerror.Wrap(psnErr, "PsNSafekeepingAccountInformation tag not found")
 	}
@@ -137,17 +154,18 @@ func (ic *StaticDataSafeKeepingAccountInformationParser) Parse(parser gopoc.Feed
 		var currentPSNAccountInfo = psnAccountInfo.NextNode()
 		var result, parseErr = parsePsNSafeKeeping(currentPSNAccountInfo)
 		if parseErr != nil {
-			return nerror.WrapOnly(parseErr)
+			handler.CollectErr(parser.Header(), nerror.WrapOnly(parseErr))
+			continue
 		}
 
-		handler.Handle(parser.Header(), result)
+		handler.Collect(parser.Header(), result)
 	}
 
 	return nil
 }
 
-func parsePsNSafeKeeping(node *etree.Element) (PSNStaticDataSafeKeepingAccountInformation, error) {
-	var psn PSNStaticDataSafeKeepingAccountInformation
+func parsePsNSafeKeeping(node *etree.Element) (SafeKeepingAccountInformation, error) {
+	var psn SafeKeepingAccountInformation
 
 	var psnHeaderErr error
 	psn.Account, psnHeaderErr = parsePsNHeader(node)
@@ -156,7 +174,7 @@ func parsePsNSafeKeeping(node *etree.Element) (PSNStaticDataSafeKeepingAccountIn
 	}
 
 	var clientKeyErr error
-	psn.ClientKeyData, clientKeyErr = parseClientDataBlocks(node)
+	psn.SafeKeepingInfo, clientKeyErr = parseClientDataBlocks(node)
 	if clientKeyErr != nil {
 		return psn, nerror.WrapOnly(clientKeyErr)
 	}
@@ -164,17 +182,21 @@ func parsePsNSafeKeeping(node *etree.Element) (PSNStaticDataSafeKeepingAccountIn
 	return psn, nil
 }
 
-type PsnOptionContractParserParser struct{}
+type PsnOptionContractXMLParser struct{}
 
-func (ic *PsnOptionContractParserParser) CanHandle(parser gopoc.FeedParser) bool {
+func (ic *PsnOptionContractXMLParser) CanHandle(parser gopoc.FeedParser) (bool, error) {
 	var header = parser.Header()
-	if header.Type() == datatypes.XMlDataFeed && parser.HasTag("PsNOptionContract") {
-		return true
+	var hasTag, err = parser.HasTag("//psn:Document/PsNOptionContract")
+	if err != nil {
+		return false, nerror.WrapOnly(err)
 	}
-	return false
+	if header.Type() == datatypes.XMlDataFeed && hasTag {
+		return true, nil
+	}
+	return false, nil
 }
 
-func (ic *PsnOptionContractParserParser) Parse(parser gopoc.FeedParser, handler gopoc.ParserResultHandler) error {
+func (ic *PsnOptionContractXMLParser) Handle(parser gopoc.FeedParser, handler gopoc.Collector) error {
 	var header = parser.Header()
 	if header.Type() != datatypes.XMlDataFeed {
 		return nerror.New("must be an xml feed")
@@ -185,25 +207,28 @@ func (ic *PsnOptionContractParserParser) Parse(parser gopoc.FeedParser, handler 
 		return nerror.New("expecting datatypes.XMLParser type")
 	}
 
-	var psnAccountInfo = xmlParser.ByTag("PsNOptionContract").(*datatypes.XMLElementIterator)
+	var psnAccountInfo = xmlParser.ByTag("//psn:Document/PsNOptionContract").(*datatypes.XMLElementIterator)
 	if psnErr := psnAccountInfo.Err(); psnErr != nil {
 		return nerror.Wrap(psnErr, "PsNSafekeepingAccountInformation tag not found")
 	}
 
 	for psnAccountInfo.HasNext() {
 		var currentPSNAccountInfo = psnAccountInfo.NextNode()
-		var result, parseErr = parsePsNOptionContract(currentPSNAccountInfo)
+		var result, parseErr = parseOptionContract(currentPSNAccountInfo)
 		if parseErr != nil {
-			return nerror.WrapOnly(parseErr)
+			handler.CollectErr(parser.Header(), nerror.WrapOnly(parseErr))
+			continue
 		}
 
-		handler.Handle(parser.Header(), result)
+		if cErr := handler.Collect(parser.Header(), result); cErr != nil {
+			return nerror.WrapOnly(cErr)
+		}
 	}
 
 	return nil
 }
 
-func parsePsNOptionContract(node *etree.Element) (OptionContract, error) {
+func parseOptionContract(node *etree.Element) (OptionContract, error) {
 	var psn OptionContract
 
 	var psnHeaderErr error
@@ -261,14 +286,10 @@ func parseFlInfo(node *etree.Element) (FLInfo, error) {
 		case "locationiso2cd":
 			data.LocationISO = elem.Text()
 		case "crtndttm":
-			var crtErr error
-			data.CrtnDtTmDate, crtErr = time.Parse(CrtnDtTMTimeFormat, elem.Text())
-			if crtErr != nil {
-				return data, nerror.WrapOnly(crtErr)
-			}
+			data.CrtnDtTmDate = elem.Text()
 		case "rprtngdt":
 			var reportErr error
-			data.ReportingDate, reportErr = time.Parse(ReportingTimeFormat, elem.Text())
+			data.ReportingDate, reportErr = parseReportingDate(elem.Text())
 			if reportErr != nil {
 				return data, nerror.WrapOnly(reportErr)
 			}
@@ -280,7 +301,7 @@ func parseFlInfo(node *etree.Element) (FLInfo, error) {
 			data.Version = elem.Text()
 		case "clntfmt":
 			data.ClientFormat = elem.Text()
-		case "msgseqno":
+		case "msqseqno":
 			var msgSeq, err = strconv.Atoi(elem.Text())
 			if err != nil {
 				return data, nerror.WrapOnly(err)
@@ -315,23 +336,23 @@ func parseReceiverSenderInfo(node *etree.Element) (SenderReceiverInfo, error) {
 	return data, nil
 }
 
-func parseClientDataBlocks(node *etree.Element) ([]ClientKeyData, error) {
-	var clientData []ClientKeyData
+func parseClientDataBlocks(node *etree.Element) ([]SafeKeepingClientInfo, error) {
+	var clientData []SafeKeepingClientInfo
 
 	var dataBlock = node.SelectElement("Data")
 	if dataBlock == nil {
 		return clientData, nerror.New("Data tag not found")
 	}
 
-	var clientSfkDataList = node.SelectElements("ClntSfkData")
+	var clientSfkDataList = dataBlock.SelectElements("ClntSfkData")
 	// TODO: Should we return an error for an empty ClntSfkData block?
 	if len(clientSfkDataList) == 0 {
-		return clientData, nil
+		return clientData, nerror.New("No ClntSfkData found")
 	}
 
 	// initialize adequate space which should suffice for available list of
 	// ClientSfkData.
-	clientData = make([]ClientKeyData, 0, len(clientSfkDataList))
+	clientData = make([]SafeKeepingClientInfo, 0, len(clientSfkDataList))
 
 	for _, clientSfkItem := range clientSfkDataList {
 		var clientDataBlock, clientDataErr = parseDataBlock(clientSfkItem)
@@ -343,10 +364,10 @@ func parseClientDataBlocks(node *etree.Element) ([]ClientKeyData, error) {
 	return clientData, nil
 }
 
-func parseDataBlock(node *etree.Element) (ClientKeyData, error) {
+func parseDataBlock(node *etree.Element) (SafeKeepingClientInfo, error) {
 	var clientData, clientDataErr = parseDataBlockClientKey(node)
-	if clientDataErr == nil {
-		return clientData, nerror.WrapOnly(clientDataErr)
+	if clientDataErr != nil {
+		return clientData, nerror.Wrap(clientDataErr, "Failed to parse ClientKey")
 	}
 
 	var clientSkfInfoList = node.SelectElements("SfkInfo")
@@ -367,8 +388,8 @@ func parseDataBlock(node *etree.Element) (ClientKeyData, error) {
 	return clientData, nil
 }
 
-func parseDataBlockClientKey(node *etree.Element) (ClientKeyData, error) {
-	var clientData ClientKeyData
+func parseDataBlockClientKey(node *etree.Element) (SafeKeepingClientInfo, error) {
+	var clientData SafeKeepingClientInfo
 
 	var clientKeyElement = node.SelectElement("ClntKey")
 	if clientKeyElement == nil {
@@ -396,9 +417,9 @@ func parseDataBlockSkfInfo(node *etree.Element) (SafeKeepingAccountInfo, error) 
 
 	for _, sfkItem := range node.ChildElements() {
 		switch strings.ToLower(sfkItem.Tag) {
-		case "acctId":
+		case "acctid":
 			data.AccountId = sfkItem.Text()
-		case "extacctId":
+		case "extacctid":
 			data.ExtAccountId = sfkItem.Text()
 		case "invstmtccyisocd":
 			data.InvestmentCurrencyISOCd = sfkItem.Text()
@@ -414,7 +435,7 @@ func parseDataBlockSkfInfo(node *etree.Element) (SafeKeepingAccountInfo, error) 
 			data.AccountTpDesc = sfkItem.Text()
 		case "acctopngdt":
 			var reportErr error
-			data.AccountOpeningDate, reportErr = time.Parse(ReportingTimeFormat, sfkItem.Text())
+			data.AccountOpeningDate, reportErr = parseReportingDate(sfkItem.Text())
 			if reportErr != nil {
 				return data, nerror.WrapOnly(reportErr)
 			}
@@ -463,138 +484,201 @@ func parseDataBlockSkfInfo(node *etree.Element) (SafeKeepingAccountInfo, error) 
 	return data, nil
 }
 
-func parseClientOptionContractBlocks(node *etree.Element) ([]PSNOptionContractCtlInfo, error) {
-	var contracts []PSNOptionContractCtlInfo
+func parseClientOptionContractBlocks(node *etree.Element) ([]OptionClientKeyData, error) {
+	var contracts []OptionClientKeyData
+
+	var dataBlock = node.SelectElement("Data")
+	if dataBlock == nil {
+		return contracts, nerror.New("Data tag not found")
+	}
+
+	var clientOptCtrctDataList = dataBlock.SelectElements("ClntOptCtrctData")
+	if len(clientOptCtrctDataList) == 0 {
+		return contracts, nerror.New("No ClntSfkData found")
+	}
+
+	contracts = make([]OptionClientKeyData, 0, len(clientOptCtrctDataList))
+	for _, dataItem := range clientOptCtrctDataList {
+		var clientKeyData, clKeyDataErr = parseClientOptionClientKeyData(dataItem)
+		if clKeyDataErr != nil {
+			return contracts, nerror.WrapOnly(clKeyDataErr)
+		}
+		contracts = append(contracts, clientKeyData)
+	}
 	return contracts, nil
 }
 
-func parseOptionContractCtlInfo(node *etree.Element) (PSNOptionContractCtlInfo, error) {
-	var data PSNOptionContractCtlInfo
-	switch strings.ToLower(node.Tag) {
-	case "ctrctid":
-		data.CtrctId = node.Text()
-	case "dealdate":
-		var dealDateErr error
-		data.DealDate, dealDateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if dealDateErr != nil {
-			return data, nerror.WrapOnly(dealDateErr)
+func parseClientOptionClientKeyData(node *etree.Element) (OptionClientKeyData, error) {
+	var data OptionClientKeyData
+
+	var clientKeyElement = node.SelectElement("ClntKey")
+	if clientKeyElement == nil {
+		return data, nerror.New("ClntKey not found in ClntSfkData")
+	}
+
+	for _, field := range clientKeyElement.ChildElements() {
+		switch strings.ToLower(field.Tag) {
+		case "intrptunit":
+			data.IntRptUnit = field.Text()
+		case "intrptunitdesc":
+			data.IntRptUnitDesc = field.Text()
+		case "clntid":
+			data.ClientId = field.Text()
+		case "extclntid":
+			data.ExtClientId = field.Text()
 		}
-	case "expirydate":
-		var expiryDateErr error
-		data.ExpiryDate, expiryDateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if expiryDateErr != nil {
-			return data, nerror.WrapOnly(expiryDateErr)
+	}
+
+	var optionCtrlInfoList = node.SelectElements("OptnCtrctInf")
+	data.Contracts = make([]OptionContractCtlInfo, 0, len(optionCtrlInfoList))
+	for _, optionCtrlInfoItem := range optionCtrlInfoList {
+		var contract, contractErr = parseOptionContractCtlInfo(optionCtrlInfoItem)
+		if contractErr != nil {
+			return data, nerror.WrapOnly(contractErr)
 		}
-	case "basecurrencycscd":
-		data.BaseCurrencyCsCd = node.Text()
-	case "basecurrencyisocd":
-		data.BaseCurrencyIsoCd = node.Text()
-	case "settlementdate":
-		var dateErr error
-		data.SettlementDate, dateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if dateErr != nil {
-			return data, nerror.WrapOnly(dateErr)
-		}
-	case "buysettlementdate":
-		var dateErr error
-		data.BuySettlementDate, dateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if dateErr != nil {
-			return data, nerror.WrapOnly(dateErr)
-		}
-	case "sellsettlementdate":
-		var dateErr error
-		data.SellSettlementDate, dateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if dateErr != nil {
-			return data, nerror.WrapOnly(dateErr)
-		}
-	case "settlementtpind":
-		var valErr error
-		data.SettlementTpInd, valErr = strconv.Atoi(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "buysellind":
-		data.BuySellInd = node.Text()
-	case "optiontpcd":
-		var valErr error
-		data.OptionTpCd, valErr = strconv.Atoi(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "exticoptiontpcd":
-		data.ExticOptionTpCd = node.Text()
-	case "ntnlleadcurrencyamount":
-		var valErr error
-		data.NtnlLeadCurrencyAmount, valErr = decimal.NewFromString(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "ntnlleadcurrencyisocd":
-		data.NtnlLeadCurrencyIsoCd = node.Text()
-	case "ntnlleadcurrencyisodesc":
-		data.NtnlLeadCurrencyIsoDesc = node.Text()
-	case "strikepricerate":
-		var valErr error
-		data.StrikePriceRate, valErr = decimal.NewFromString(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "ntnlcountercurrencyamount":
-		var valErr error
-		data.NtnlCounterCurrencyAmount, valErr = decimal.NewFromString(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "ntnlcountercurrencyisocd":
-		data.NtnlCounterCurrencyISOCd = node.Text()
-	case "ntnlcountercurrencyisodesc":
-		data.NtnlCounterCurrencyISODesc = node.Text()
-	case "premiumamount":
-		var valErr error
-		data.PremiumAmount, valErr = decimal.NewFromString(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "premiumaccountisocd":
-		data.PremiumAccountIsoCd = node.Text()
-	case "premiumaccountisodesc":
-		data.PremiumAccountIsoDesc = node.Text()
-	case "positiondate":
-		var dateErr error
-		data.PositionDate, dateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if dateErr != nil {
-			return data, nerror.WrapOnly(dateErr)
-		}
-	case "revaluationdate":
-		var dateErr error
-		data.RevaluationDate, dateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if dateErr != nil {
-			return data, nerror.WrapOnly(dateErr)
-		}
-	case "prtflid":
-		data.PrtFlId = node.Text()
-	case "mtmvalorigcurrencyisocd":
-		data.MtmValOrigCurrencyIsoCd = node.Text()
-	case "mtmvalorigcurrencyamount":
-		var valErr error
-		data.MtmValOrigCurrencyAmount, valErr = decimal.NewFromString(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "mtmvalreportcurrencyisocd":
-		data.MtmValReportCurrencyISOCd = node.Text()
-	case "mtmvalreportcurrencyamount":
-		var valErr error
-		data.MtmValReportCurrencyAmount, valErr = decimal.NewFromString(node.Text())
-		if valErr != nil {
-			return data, nerror.WrapOnly(valErr)
-		}
-	case "mtmvaluedate":
-		var dateErr error
-		data.MtmValueDate, dateErr = time.Parse(ReportingTimeFormat, node.Text())
-		if dateErr != nil {
-			return data, nerror.WrapOnly(dateErr)
+		data.Contracts = append(data.Contracts, contract)
+	}
+
+	return data, nil
+}
+
+func parseOptionContractCtlInfo(parent *etree.Element) (OptionContractCtlInfo, error) {
+	var data OptionContractCtlInfo
+	for _, node := range parent.ChildElements() {
+		switch strings.ToLower(node.Tag) {
+		case "ctrctid":
+			data.CtrctId = node.Text()
+		case "dealdt":
+			var dealDateErr error
+			data.DealDate, dealDateErr = parseReportingDate(node.Text())
+			if dealDateErr != nil {
+				return data, nerror.WrapOnly(dealDateErr)
+			}
+		case "expirydt":
+			var expiryDateErr error
+			data.ExpiryDate, expiryDateErr = parseReportingDate(node.Text())
+			if expiryDateErr != nil {
+				return data, nerror.WrapOnly(expiryDateErr)
+			}
+		case "baseccycscd":
+			data.BaseCurrencyCsCd = node.Text()
+		case "baseccyisocd":
+			data.BaseCurrencyIsoCd = node.Text()
+		case "sttlmdt":
+			var dateErr error
+			data.SettlementDate, dateErr = parseReportingDate(node.Text())
+			if dateErr != nil {
+				return data, nerror.WrapOnly(dateErr)
+			}
+		case "buysttlmdt":
+			var dateErr error
+			data.BuySettlementDate, dateErr = parseReportingDate(node.Text())
+			if dateErr != nil {
+				return data, nerror.WrapOnly(dateErr)
+			}
+		case "sellsttlmdt":
+			var dateErr error
+			data.SellSettlementDate, dateErr = parseReportingDate(node.Text())
+			if dateErr != nil {
+				return data, nerror.WrapOnly(dateErr)
+			}
+		case "sttlmtpind":
+			var valErr error
+			data.SettlementTpInd, valErr = strconv.Atoi(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "buysellind":
+			data.BuySellInd = node.Text()
+		case "optntpcd":
+			var valErr error
+			data.OptionTpCd, valErr = strconv.Atoi(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "exticoptntpcd":
+			data.ExticOptionTpCd = node.Text()
+		case "ntnlleadccyamt":
+			var valErr error
+			data.NtnlLeadCurrencyAmount, valErr = decimal.NewFromString(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "ntnlleadccyisocd":
+			data.NtnlLeadCurrencyIsoCd = node.Text()
+		case "ntnlleadccyisodesc":
+			data.NtnlLeadCurrencyIsoDesc = node.Text()
+		case "strikeprcrate":
+			var valErr error
+			data.StrikePriceRate, valErr = decimal.NewFromString(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "ntnlcounterccyamt":
+			var valErr error
+			data.NtnlCounterCurrencyAmount, valErr = decimal.NewFromString(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "ntnlcounterccyisocd":
+			data.NtnlCounterCurrencyISOCd = node.Text()
+		case "ntnlcounterccyisodesc":
+			data.NtnlCounterCurrencyISODesc = node.Text()
+		case "premiumamt":
+			var valErr error
+			data.PremiumAmount, valErr = decimal.NewFromString(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "premiumccyisocd":
+			data.PremiumAccountIsoCd = node.Text()
+		case "premiumccyisodesc":
+			data.PremiumAccountIsoDesc = node.Text()
+		case "posdt":
+			var dateErr error
+			data.PositionDate, dateErr = parseReportingDate(node.Text())
+			if dateErr != nil {
+				return data, nerror.WrapOnly(dateErr)
+			}
+		case "revaltndt":
+			var dateErr error
+			data.RevaluationDate, dateErr = parseReportingDate(node.Text())
+			if dateErr != nil {
+				return data, nerror.WrapOnly(dateErr)
+			}
+		case "prtflid":
+			data.PrtFlId = node.Text()
+		case "mtmvalorigccyisocd":
+			data.MtmValOrigCurrencyIsoCd = node.Text()
+		case "mtmvalorigccyamt":
+			var valErr error
+			data.MtmValOrigCurrencyAmount, valErr = decimal.NewFromString(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "mtmvalrptccyisocd":
+			data.MtmValReportCurrencyISOCd = node.Text()
+		case "mtmvalrptccyamt":
+			var valErr error
+			data.MtmValReportCurrencyAmount, valErr = decimal.NewFromString(node.Text())
+			if valErr != nil {
+				return data, nerror.WrapOnly(valErr)
+			}
+		case "mtmvaldt":
+			var dateErr error
+			data.MtmValueDate, dateErr = parseReportingDate(node.Text())
+			if dateErr != nil {
+				return data, nerror.WrapOnly(dateErr)
+			}
 		}
 	}
 	return data, nil
+}
+
+func parseRFC3339Nano(value string) (time.Time, error) {
+	return time.Parse(time.RFC3339Nano, value)
+}
+
+func parseReportingDate(value string) (time.Time, error) {
+	return time.Parse(ReportingTimeFormat, value)
 }

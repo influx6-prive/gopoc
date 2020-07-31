@@ -10,21 +10,27 @@ import (
 	"github.com/spf13/afero"
 )
 
-var _ gopoc.FileParser = (*FileParser)(nil)
+var _ gopoc.FileParser = (*BaseFileParser)(nil)
 
-type FileParser struct{}
+type BaseFileParser struct{}
 
-func (f *FileParser) GetParser(file afero.File, info os.FileInfo) (gopoc.FeedParser, error) {
+func (f *BaseFileParser) GetParser(file afero.File, info os.FileInfo) (gopoc.FeedParser, error) {
 	var fileName = file.Name()
 	var fileExtension = strings.ToLower(path.Ext(fileName))
 
 	//TODO: Add more parsers here.
+	var parser gopoc.FeedParser
 	switch fileExtension {
 	case ".xml":
-		return NewXMLParserFromFile(file, info), nil
+		parser = NewXMLParserFromFile(file, info)
 	case ".txt", ".text":
-		return NewTextParserFromFile(file, info), nil
+		parser = NewTextParserFromFile(file, info)
 	default:
+		return nil, nerror.New("not yet supported")
 	}
-	return nil, nerror.New("not yet supported")
+
+	if parserErr := parser.Err(); parserErr != nil {
+		return parser, nerror.WrapOnly(parserErr)
+	}
+	return parser, nil
 }

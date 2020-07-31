@@ -6,8 +6,9 @@ import (
 	"github.com/spf13/afero"
 )
 
-type ParserResultHandler interface {
-	Handle(FeedHeader, interface{}) error
+type Collector interface {
+	CollectErr(FeedHeader, error)
+	Collect(FeedHeader, interface{}) error
 }
 
 type DataFileSystem interface {
@@ -20,8 +21,8 @@ type FileParser interface {
 }
 
 type ParseProcessor interface {
-	CanHandle(parser FeedParser) bool
-	Handle(parser FeedParser, handle ParserResultHandler) error
+	CanHandle(parser FeedParser) (bool, error)
+	Handle(parser FeedParser, handle Collector) error
 }
 
 type FeedIterator interface {
@@ -44,7 +45,9 @@ type FeedParser interface {
 	// Functions for going through
 	// data feed lines, text and tags.
 	ByRow() FeedIterator
-	HasTag(tag string) bool
+
+	//HasTag returns true/false if giving tag is available.
+	HasTag(tag string) (bool, error)
 
 	// Tag returns an iterator that cycles through all
 	// matching tag
