@@ -1,6 +1,10 @@
 # GoPOC
 A small library to demonstrate basic go-based ETL for mapping feeds into usable structure. 
 
+Currently the following CreditSuisse files for `SDSA` and `TDOPT` are implemented for parsing, see the package [CreditSuisse XML Parser](./pkg/datatypes/creditsuisse) for implementation.
+
+_Please note the code is rough, so not still 100% up to standard for fully production code._
+
 ## Platform Requirements
 
 - Linux system or VM
